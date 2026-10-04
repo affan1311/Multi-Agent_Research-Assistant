@@ -1,20 +1,22 @@
 from langchain.tools import tool
 import requests
-from dotenv import load_dotenv
-import os
 from tavily import TavilyClient
+from src.config import get_secret
 from rich import print
 from bs4 import BeautifulSoup
 from readability import Document
 import trafilatura
 import re
 
-load_dotenv()
-
-tavily = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
-
 def search_web(query: str) -> str:
      """Search the web for recent sources matching the query."""
+     tavily_api_key = get_secret("TAVILY_API_KEY")
+     if not tavily_api_key:
+          raise RuntimeError(
+               "Missing Tavily credentials. Add TAVILY_API_KEY to your .env file "
+               "or Streamlit Cloud app secrets."
+          )
+     tavily = TavilyClient(api_key=tavily_api_key)
      results = tavily.search(query=query,max_results=5)
      out = []
 
